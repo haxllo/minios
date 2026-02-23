@@ -53,6 +53,19 @@ sudo bash scripts/build_iso.sh
 ```
 
 If successful, ISO output is copied into `build/output/`.
+Detailed logs are written to `build/logs/`.
+
+Run a fast safety check before a long build:
+
+```bash
+sudo bash scripts/build_iso.sh --preflight
+```
+
+Preflight validates:
+- required tools (`lb`, `debootstrap`, `wget`)
+- free disk space (default minimum: 15 GiB)
+- Ubuntu mirror reachability
+- apt index refresh (can skip with `MINIOS_SKIP_APT_UPDATE=1`)
 
 If build fails and `build/output/` is empty:
 - Read console output and logs in `build/live/`.

@@ -5,7 +5,84 @@ on_error() {
   local exit_code="$1"
   echo "ISO build failed (exit ${exit_code})."
   echo "Check build logs under: ${BUILD_ROOT}"
+  if [[ -n "${BUILD_LOG:-}" ]]; then
+    echo "Detailed log: ${BUILD_LOG}"
+  fi
   echo "Tip: if you see start-stop-daemon diversion errors, this script now applies a live-build hotfix automatically."
+}
+
+usage() {
+  cat <<'EOF'
+Usage:
+  sudo bash scripts/build_iso.sh [--preflight]
+
+Options:
+  --preflight   Run environment checks only, skip actual ISO build.
+
+Environment:
+  MINIOS_BUILD_MIN_FREE_GB   Minimum free disk space required (default: 15).
+  MINIOS_SKIP_APT_UPDATE=1   Skip apt index refresh during preflight.
+EOF
+}
+
+require_cmd() {
+  local cmd="$1"
+  if ! command -v "${cmd}" >/dev/null 2>&1; then
+    echo "Missing required command: ${cmd}"
+    return 1
+  fi
+}
+
+check_url() {
+  local url="$1"
+  if ! wget --spider --timeout=15 --tries=2 "${url}" >/dev/null 2>&1; then
+    echo "Cannot reach required mirror URL: ${url}"
+    return 1
+  fi
+}
+
+preflight_checks() {
+  local avail_gb
+  local apt_skip="${MINIOS_SKIP_APT_UPDATE:-0}"
+
+  echo "Running preflight checks..."
+  require_cmd lb
+  require_cmd wget
+  require_cmd debootstrap
+  require_cmd dpkg-divert
+
+  if [[ -r /etc/os-release ]]; then
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    echo "Host OS: ${PRETTY_NAME:-unknown}"
+    if [[ "${ID:-}" != "ubuntu" ]]; then
+      echo "Warning: host is not Ubuntu. Build may still work, but this project targets Ubuntu hosts."
+    fi
+  fi
+
+  avail_gb="$(df --output=avail -BG "${ROOT_DIR}" | tail -n 1 | tr -dc '0-9')"
+  if [[ -z "${avail_gb}" ]]; then
+    echo "Unable to determine free disk space at ${ROOT_DIR}."
+    return 1
+  fi
+  if (( avail_gb < MIN_FREE_GB )); then
+    echo "Not enough free disk space at ${ROOT_DIR}: ${avail_gb} GiB available, ${MIN_FREE_GB} GiB required."
+    return 1
+  fi
+  echo "Disk check OK: ${avail_gb} GiB free (min ${MIN_FREE_GB} GiB)."
+
+  check_url "http://archive.ubuntu.com/ubuntu/dists/jammy/Release"
+  check_url "http://security.ubuntu.com/ubuntu/dists/jammy-security/Release"
+  echo "Mirror reachability OK."
+
+  if [[ "${apt_skip}" == "1" ]]; then
+    echo "Skipping apt index refresh (MINIOS_SKIP_APT_UPDATE=1)."
+  else
+    echo "Refreshing apt indexes..."
+    apt-get update -qq
+  fi
+
+  echo "Preflight checks passed."
 }
 
 if [[ "${EUID}" -ne 0 ]]; then
@@ -16,11 +93,23 @@ fi
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_ROOT="${ROOT_DIR}/build/live"
 OUTPUT_DIR="${ROOT_DIR}/build/output"
+LOG_DIR="${ROOT_DIR}/build/logs"
+BUILD_LOG=""
+MIN_FREE_GB="${MINIOS_BUILD_MIN_FREE_GB:-15}"
+PRECHECK_ONLY=0
+
+if [[ "${1:-}" == "--preflight" ]]; then
+  PRECHECK_ONLY=1
+elif [[ -n "${1:-}" ]]; then
+  usage
+  exit 1
+fi
+
 trap 'on_error "$?"' ERR
 
-if ! command -v lb >/dev/null 2>&1; then
-  echo "Missing live-build ('lb'). Run scripts/install_base.sh first."
-  exit 1
+preflight_checks
+if [[ "${PRECHECK_ONLY}" -eq 1 ]]; then
+  exit 0
 fi
 
 apply_live_build_hotfix() {
@@ -52,6 +141,8 @@ echo "Preparing build directories..."
 rm -rf "${BUILD_ROOT}"
 mkdir -p "${BUILD_ROOT}"
 mkdir -p "${OUTPUT_DIR}"
+mkdir -p "${LOG_DIR}"
+BUILD_LOG="${LOG_DIR}/iso-build-$(date '+%Y%m%d-%H%M%S').log"
 cd "${BUILD_ROOT}"
 
 echo "Configuring live-build..."
@@ -113,7 +204,7 @@ sed "s|__SESSION_EXEC__|/home/user/.local/bin/minios-session|g" \
   > config/includes.chroot/etc/skel/.local/share/xsessions/minios.desktop
 
 echo "Building ISO..."
-lb build
+lb build 2>&1 | tee "${BUILD_LOG}"
 
 shopt -s nullglob
 iso_files=( ./*.iso )
@@ -128,3 +219,4 @@ done
 
 echo "ISO build complete. Output:"
 ls -1 "${OUTPUT_DIR}"/*.iso
+echo "Build log: ${BUILD_LOG}"
