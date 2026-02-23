@@ -1,0 +1,63 @@
+configuration {
+  modi: "drun,run,window";
+  show-icons: true;
+  display-drun: "Apps";
+  display-run: "Run";
+  display-window: "Windows";
+  drun-display-format: "{name}";
+  icon-theme: "Yaru";
+  font: "Noto Sans 12";
+  disable-history: false;
+  matching: "fuzzy";
+}
+
+* {
+  background: #0f111a;
+  background-alt: #1b2030;
+  foreground: #f2f3f5;
+  selected: #3f6ad8;
+  urgent: #d9534f;
+  border: #2a2f44;
+}
+
+window {
+  width: 42%;
+  border: 2px;
+  border-color: @border;
+  border-radius: 8px;
+  location: center;
+  anchor: center;
+  background-color: @background;
+}
+
+mainbox {
+  children: [ inputbar, listview ];
+  spacing: 10px;
+  padding: 14px;
+}
+
+inputbar {
+  background-color: @background-alt;
+  text-color: @foreground;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+listview {
+  lines: 10;
+  columns: 1;
+  fixed-height: true;
+  spacing: 4px;
+  scrollbar: false;
+}
+
+element {
+  padding: 8px 10px;
+  border-radius: 6px;
+  text-color: @foreground;
+}
+
+element selected {
+  background-color: @selected;
+  text-color: #ffffff;
+}

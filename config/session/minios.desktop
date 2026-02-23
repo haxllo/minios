@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=MiniOS
+Comment=MiniOS Openbox Session
+Exec=__SESSION_EXEC__
+TryExec=openbox
+Type=Application
+DesktopNames=MiniOS

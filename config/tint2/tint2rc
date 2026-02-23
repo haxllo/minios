@@ -1,0 +1,115 @@
+#---- Generated baseline tint2 profile for MiniOS ----#
+rounded = 6
+border_width = 1
+background_color = #171b26 95
+border_color = #2a2f44 100
+gradient_id = 0
+
+rounded = 6
+border_width = 0
+background_color = #3f6ad8 100
+border_color = #3f6ad8 100
+gradient_id = 0
+
+panel_items = LTSBC
+panel_monitor = all
+panel_position = top center horizontal
+panel_size = 100% 34
+panel_margin = 0 0
+panel_padding = 10 5 8
+panel_background_id = 1
+wm_menu = 1
+panel_dock = 0
+panel_pivot_struts = 0
+panel_layer = top
+panel_window_name = tint2
+disable_transparency = 1
+mouse_effects = 1
+font_shadow = 0
+panel_background_id = 1
+
+launcher_padding = 6 4 6
+launcher_background_id = 0
+launcher_icon_background_id = 0
+launcher_icon_size = 20
+launcher_icon_theme = Yaru
+launcher_icon_asb = 100 0 0
+launcher_item_app = /usr/share/applications/firefox.desktop
+launcher_item_app = /usr/share/applications/org.gnome.Nautilus.desktop
+launcher_item_app = /usr/share/applications/gnome-terminal.desktop
+
+taskbar_mode = multi_desktop
+taskbar_padding = 6 3 4
+taskbar_background_id = 0
+taskbar_name = 0
+taskbar_hide_inactive_tasks = 0
+taskbar_hide_different_monitor = 0
+taskbar_hide_different_desktop = 0
+taskbar_always_show_all_desktop_tasks = 0
+taskbar_name_padding = 6 0
+taskbar_name_background_id = 0
+taskbar_name_active_background_id = 0
+taskbar_name_font = Noto Sans Bold 10
+taskbar_name_font_color = #d9d9de 100
+taskbar_name_active_font_color = #ffffff 100
+taskbar_distribute_size = 0
+taskbar_sort_order = none
+task_align = left
+
+task_padding = 4 3 4
+task_background_id = 0
+task_active_background_id = 2
+task_urgent_background_id = 2
+task_iconified_background_id = 0
+task_font = Noto Sans 10
+task_font_color = #d9d9de 100
+task_active_font_color = #ffffff 100
+task_urgent_font_color = #ffffff 100
+task_iconified_font_color = #9da5c3 100
+task_icon_asb = 100 0 0
+task_active_icon_asb = 100 0 0
+task_urgent_icon_asb = 100 0 0
+task_iconified_icon_asb = 70 0 0
+task_tooltip = 1
+task_thumbnail = 0
+task_maximum_size = 220 36
+task_centered = 1
+task_indicator_size = 2
+task_indicator_background_id = 2
+task_indicator_active_background_id = 2
+task_urgent_alert = blink
+
+systray_padding = 4 3 8
+systray_background_id = 0
+systray_sort = ascending
+systray_icon_size = 18
+systray_monitor = 1
+systray_name_filter = ""
+
+battery = 1
+battery_low_status = 20
+battery_low_cmd = notify-send "Battery low"
+battery_full_cmd = ""
+bat1_font = Noto Sans 10
+bat2_font = Noto Sans 8
+battery_font_color = #e4e6ee 100
+battery_padding = 8 3 8
+battery_background_id = 0
+battery_hide = 101
+
+time1_format = %H:%M
+time2_format = %a %d %b
+time1_font = Noto Sans Bold 10
+time2_font = Noto Sans 8
+clock_font_color = #f2f3f5 100
+clock_padding = 8 3 8
+clock_background_id = 0
+clock_tooltip = %Y-%m-%d
+clock_lclick_command = gsimplecal
+clock_rclick_command = orage
+
+tooltip_show_timeout = 0.1
+tooltip_hide_timeout = 0.1
+tooltip_padding = 8 6
+tooltip_background_id = 0
+tooltip_font_color = #ffffff 100
