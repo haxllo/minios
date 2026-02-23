@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+on_error() {
+  local exit_code="$1"
+  echo "ISO build failed (exit ${exit_code})."
+  echo "Check build logs under: ${BUILD_ROOT}"
+  echo "Tip: if you see start-stop-daemon diversion errors, this script now applies a live-build hotfix automatically."
+}
+
 if [[ "${EUID}" -ne 0 ]]; then
   echo "Run as root: sudo bash scripts/build_iso.sh"
   exit 1
@@ -9,11 +16,37 @@ fi
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_ROOT="${ROOT_DIR}/build/live"
 OUTPUT_DIR="${ROOT_DIR}/build/output"
+trap 'on_error "$?"' ERR
 
 if ! command -v lb >/dev/null 2>&1; then
   echo "Missing live-build ('lb'). Run scripts/install_base.sh first."
   exit 1
 fi
+
+apply_live_build_hotfix() {
+  local lb_file="/usr/lib/live/build/lb_chroot_dpkg"
+  local marker_begin="# begin-remove-after: released:forky"
+  local marker_end="# end-remove-after"
+  local backup_file
+
+  if [[ ! -f "${lb_file}" ]]; then
+    return 0
+  fi
+
+  # Known live-build issue: duplicate start-stop-daemon diversion cleanup on usr-merged systems.
+  if grep -qF "${marker_begin}" "${lb_file}" && grep -qF -- "--remove /usr/sbin/start-stop-daemon" "${lb_file}"; then
+    backup_file="${lb_file}.minios.bak"
+    if [[ ! -f "${backup_file}" ]]; then
+      cp "${lb_file}" "${backup_file}"
+      echo "Backed up live-build helper to ${backup_file}"
+    fi
+
+    sed -i "/${marker_begin}/,/${marker_end}/d" "${lb_file}"
+    echo "Applied live-build start-stop-daemon diversion workaround."
+  fi
+}
+
+apply_live_build_hotfix
 
 echo "Preparing build directories..."
 rm -rf "${BUILD_ROOT}"

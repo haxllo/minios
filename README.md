@@ -54,6 +54,12 @@ sudo bash scripts/build_iso.sh
 
 If successful, ISO output is copied into `build/output/`.
 
+If build fails and `build/output/` is empty:
+- Read console output and logs in `build/live/`.
+- A known `live-build` bug can fail on `start-stop-daemon` diversion cleanup.
+- `scripts/build_iso.sh` now auto-applies a host-side workaround to `/usr/lib/live/build/lb_chroot_dpkg` and keeps a backup at:
+  `/usr/lib/live/build/lb_chroot_dpkg.minios.bak`
+
 ## Notes
 
 - WSL is excellent for authoring scripts/configs, but desktop graphics and driver behavior must be validated in a VM or on real hardware.
