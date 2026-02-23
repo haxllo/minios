@@ -62,6 +62,7 @@ mkdir -p config/includes.chroot/etc/skel/.config/openbox
 mkdir -p config/includes.chroot/etc/skel/.config/picom
 mkdir -p config/includes.chroot/etc/skel/.config/tint2
 mkdir -p config/includes.chroot/etc/skel/.config/rofi
+mkdir -p config/includes.chroot/etc/skel/.config/minios
 mkdir -p config/includes.chroot/etc/skel/.local/bin
 mkdir -p config/includes.chroot/etc/skel/.local/share/xsessions
 
@@ -70,6 +71,7 @@ cp "${ROOT_DIR}/config/openbox/menu.xml" config/includes.chroot/etc/skel/.config
 cp "${ROOT_DIR}/config/picom/picom.conf" config/includes.chroot/etc/skel/.config/picom/picom.conf
 cp "${ROOT_DIR}/config/tint2/tint2rc" config/includes.chroot/etc/skel/.config/tint2/tint2rc
 cp "${ROOT_DIR}/config/rofi/config.rasi" config/includes.chroot/etc/skel/.config/rofi/config.rasi
+cp "${ROOT_DIR}/config/minios/session.env" config/includes.chroot/etc/skel/.config/minios/session.env
 cp "${ROOT_DIR}/scripts/minios-session.sh" config/includes.chroot/etc/skel/.local/bin/minios-session
 chmod 0755 config/includes.chroot/etc/skel/.local/bin/minios-session
 

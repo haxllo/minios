@@ -37,6 +37,7 @@ install -d "${HOME}/.config/openbox"
 install -d "${HOME}/.config/picom"
 install -d "${HOME}/.config/tint2"
 install -d "${HOME}/.config/rofi"
+install -d "${HOME}/.config/minios"
 install -d "${HOME}/.local/share/xsessions"
 install -d "${HOME}/.config/plank/dock1/launchers"
 
@@ -45,6 +46,9 @@ install -m 0644 "${ROOT_DIR}/config/openbox/menu.xml" "${HOME}/.config/openbox/m
 install -m 0644 "${ROOT_DIR}/config/picom/picom.conf" "${HOME}/.config/picom/picom.conf"
 install -m 0644 "${ROOT_DIR}/config/tint2/tint2rc" "${HOME}/.config/tint2/tint2rc"
 install -m 0644 "${ROOT_DIR}/config/rofi/config.rasi" "${HOME}/.config/rofi/config.rasi"
+if [[ ! -f "${HOME}/.config/minios/session.env" ]]; then
+  install -m 0644 "${ROOT_DIR}/config/minios/session.env" "${HOME}/.config/minios/session.env"
+fi
 
 browser_desktop="$(find_desktop_file \
   /var/lib/snapd/desktop/applications/firefox_firefox.desktop \

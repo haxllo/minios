@@ -58,3 +58,19 @@ If successful, ISO output is copied into `build/output/`.
 
 - WSL is excellent for authoring scripts/configs, but desktop graphics and driver behavior must be validated in a VM or on real hardware.
 - `scripts/install_base.sh` intentionally prefers stability over latest packages.
+- Session stability flags live in `~/.config/minios/session.env`.
+
+## Stability tuning
+
+MiniOS starts panel/dock/tray/compositor under a watchdog and logs to:
+
+`~/.local/state/minios/session.log`
+
+On unstable graphics stacks (especially VMs), compositor is disabled automatically.
+
+To force behavior, edit `~/.config/minios/session.env`:
+
+```bash
+MINIOS_ENABLE_COMPOSITOR=0    # safest
+MINIOS_ENABLE_WATCHDOG=1      # keep auto-restart enabled
+```
