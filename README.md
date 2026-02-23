@@ -72,6 +72,11 @@ If build fails and `build/output/` is empty:
 - A known `live-build` bug can fail on `start-stop-daemon` diversion cleanup.
 - `scripts/build_iso.sh` now auto-applies a host-side workaround to `/usr/lib/live/build/lb_chroot_dpkg` and keeps a backup at:
   `/usr/lib/live/build/lb_chroot_dpkg.minios.bak`
+- Another known `live-build` issue may reference obsolete syslinux theme packages
+  (`syslinux-themes-ubuntu-oneiric`, `gfxboot-theme-ubuntu`) and fail near the end.
+  The script now auto-removes those references from `/usr/lib/live/build/lb_binary_syslinux`
+  when those packages are unavailable, with backup at:
+  `/usr/lib/live/build/lb_binary_syslinux.minios.bak`
 
 ## Notes
 

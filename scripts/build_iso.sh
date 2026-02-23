@@ -135,7 +135,41 @@ apply_live_build_hotfix() {
   fi
 }
 
+apply_live_build_syslinux_hotfix() {
+  local lb_file="/usr/lib/live/build/lb_binary_syslinux"
+  local backup_file
+  local patched=0
+
+  if [[ ! -f "${lb_file}" ]]; then
+    return 0
+  fi
+
+  # Older Ubuntu-mode live-build scripts may reference obsolete theme packages
+  # and fail near the end of ISO generation.
+  if grep -qF "syslinux-themes-ubuntu-oneiric" "${lb_file}" \
+     && ! apt-cache show syslinux-themes-ubuntu-oneiric >/dev/null 2>&1; then
+    patched=1
+  fi
+  if grep -qF "gfxboot-theme-ubuntu" "${lb_file}" \
+     && ! apt-cache show gfxboot-theme-ubuntu >/dev/null 2>&1; then
+    patched=1
+  fi
+
+  if [[ "${patched}" -eq 1 ]]; then
+    backup_file="${lb_file}.minios.bak"
+    if [[ ! -f "${backup_file}" ]]; then
+      cp "${lb_file}" "${backup_file}"
+      echo "Backed up live-build helper to ${backup_file}"
+    fi
+
+    sed -i 's/\<syslinux-themes-ubuntu-oneiric\>//g' "${lb_file}"
+    sed -i 's/\<gfxboot-theme-ubuntu\>//g' "${lb_file}"
+    echo "Applied live-build syslinux theme package workaround."
+  fi
+}
+
 apply_live_build_hotfix
+apply_live_build_syslinux_hotfix
 
 echo "Preparing build directories..."
 rm -rf "${BUILD_ROOT}"
