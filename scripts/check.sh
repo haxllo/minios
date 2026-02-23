@@ -10,6 +10,7 @@ scripts=(
   scripts/setup_session.sh
   scripts/minios-session.sh
   scripts/build_iso.sh
+  scripts/build_iso_modern.sh
   scripts/check.sh
 )
 

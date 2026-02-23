@@ -18,7 +18,8 @@ This repository is meant to be developed from WSL or any Linux shell, then teste
 
 - `scripts/install_base.sh`: installs core packages on target machine
 - `scripts/setup_session.sh`: deploys session and user configs
-- `scripts/build_iso.sh`: builds a live ISO using `live-build`
+- `scripts/build_iso_modern.sh`: builds a live ISO using `mmdebstrap + squashfs + grub-mkrescue` (recommended)
+- `scripts/build_iso.sh`: legacy fallback builder using `live-build`
 - `scripts/check.sh`: local script checks
 - `config/`: baseline session/compositor/launcher configs
 - `docs/`: architecture notes and hardware profile guidance
@@ -49,7 +50,7 @@ bash scripts/setup_session.sh --system
 ## Build ISO
 
 ```bash
-sudo bash scripts/build_iso.sh
+sudo bash scripts/build_iso_modern.sh
 ```
 
 If successful, ISO output is copied into `build/output/`.
@@ -58,14 +59,21 @@ Detailed logs are written to `build/logs/`.
 Run a fast safety check before a long build:
 
 ```bash
-sudo bash scripts/build_iso.sh --preflight
+sudo bash scripts/build_iso_modern.sh --preflight
 ```
 
 Preflight validates:
-- required tools (`lb`, `debootstrap`, `wget`)
-- free disk space (default minimum: 15 GiB)
+- required tools (`mmdebstrap`, `mksquashfs`, `grub-mkrescue`, `xorriso`)
+- free disk space (default minimum: 20 GiB)
 - Ubuntu mirror reachability
 - apt index refresh (can skip with `MINIOS_SKIP_APT_UPDATE=1`)
+
+Legacy builder (fallback only):
+
+```bash
+sudo bash scripts/build_iso.sh --preflight
+sudo bash scripts/build_iso.sh
+```
 
 If build fails and `build/output/` is empty:
 - Read console output and logs in `build/live/`.
@@ -83,6 +91,7 @@ If build fails and `build/output/` is empty:
 - WSL is excellent for authoring scripts/configs, but desktop graphics and driver behavior must be validated in a VM or on real hardware.
 - `scripts/install_base.sh` intentionally prefers stability over latest packages.
 - Session stability flags live in `~/.config/minios/session.env`.
+- Modern builder scratch files are in `build/modern/`.
 
 ## Stability tuning
 

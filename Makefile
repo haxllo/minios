@@ -1,6 +1,6 @@
 SHELL := /usr/bin/env bash
 
-.PHONY: check install-base setup-session setup-session-system build-iso
+.PHONY: check install-base setup-session setup-session-system build-iso build-iso-modern build-iso-legacy
 
 check:
 	bash scripts/check.sh
@@ -15,4 +15,10 @@ setup-session-system:
 	bash scripts/setup_session.sh --system
 
 build-iso:
+	sudo bash scripts/build_iso_modern.sh
+
+build-iso-modern:
+	sudo bash scripts/build_iso_modern.sh
+
+build-iso-legacy:
 	sudo bash scripts/build_iso.sh

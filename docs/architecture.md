@@ -26,7 +26,8 @@ Provide a polished, low-maintenance Linux desktop profile with:
 
 4. Distribution layer
 - reproducible package list
-- ISO build using `live-build`
+- primary ISO build using `mmdebstrap + squashfs + grub-mkrescue`
+- legacy ISO build fallback using `live-build`
 - pinned defaults and hardware profile docs
 
 ## Why this stack

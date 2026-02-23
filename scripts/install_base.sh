@@ -57,6 +57,16 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
   btrfs-progs \
   timeshift \
   live-build \
+  mmdebstrap \
+  debootstrap \
+  squashfs-tools \
+  xorriso \
+  grub-common \
+  grub-pc-bin \
+  grub-efi-amd64-bin \
+  mtools \
+  dosfstools \
+  rsync \
   curl \
   git
 
