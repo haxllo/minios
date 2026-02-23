@@ -60,7 +60,7 @@ lb config \
   --distribution jammy \
   --archive-areas "main restricted universe multiverse" \
   --binary-images iso-hybrid \
-  --debian-installer live
+  --debian-installer false
 
 mkdir -p config/package-lists
 cat > config/package-lists/minios.list.chroot <<'EOF'
