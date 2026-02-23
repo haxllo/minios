@@ -42,12 +42,18 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
   picom \
   rofi \
   plank \
+  firefox \
+  nautilus \
+  gnome-terminal \
+  gedit \
+  eog \
   network-manager-gnome \
   pavucontrol \
   xfce4-settings \
   fonts-noto \
   fonts-noto-color-emoji \
   mesa-utils \
+  xdg-utils \
   btrfs-progs \
   timeshift \
   live-build \

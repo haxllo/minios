@@ -40,12 +40,18 @@ tint2
 picom
 rofi
 plank
+firefox
+nautilus
+gnome-terminal
+gedit
+eog
 network-manager-gnome
 pavucontrol
 xfce4-settings
 fonts-noto
 fonts-noto-color-emoji
 mesa-utils
+xdg-utils
 EOF
 
 if apt-cache show nvidia-driver-470 >/dev/null 2>&1; then
