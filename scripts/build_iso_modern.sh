@@ -105,12 +105,14 @@ build_chroot() {
     systemd-sysv
     sudo
     casper
+    initramfs-tools
     dbus-x11
     linux-generic
     linux-headers-generic
     xorg
     xinit
     lightdm
+    lightdm-gtk-greeter
     openbox
     tint2
     picom
@@ -157,6 +159,11 @@ build_chroot() {
   else
     echo "apt-get not present in chroot variant; skipping chroot apt refresh."
   fi
+  if chroot "${CHROOT_DIR}" /usr/bin/env bash -lc 'command -v update-initramfs >/dev/null 2>&1'; then
+    chroot "${CHROOT_DIR}" update-initramfs -u -k all
+  else
+    echo "update-initramfs not present in chroot variant; skipping initramfs refresh."
+  fi
 }
 
 inject_minios_config() {
@@ -192,7 +199,7 @@ assemble_iso_tree() {
   local initrd_path
 
   mkdir -p "${STAGING_DIR}/boot/grub"
-  mkdir -p "${STAGING_DIR}/live"
+  mkdir -p "${STAGING_DIR}/casper"
   touch "${STAGING_DIR}/MINIOS"
 
   kernel_path="$(ls -1 "${CHROOT_DIR}"/boot/vmlinuz-* | sort | tail -n 1)"
@@ -203,16 +210,16 @@ assemble_iso_tree() {
     return 1
   fi
 
-  cp "${kernel_path}" "${STAGING_DIR}/live/vmlinuz"
-  cp "${initrd_path}" "${STAGING_DIR}/live/initrd"
+  cp "${kernel_path}" "${STAGING_DIR}/casper/vmlinuz"
+  cp "${initrd_path}" "${STAGING_DIR}/casper/initrd"
 
   chroot "${CHROOT_DIR}" dpkg-query -W --showformat='${Package} ${Version}\n' \
-    > "${STAGING_DIR}/live/filesystem.manifest"
+    > "${STAGING_DIR}/casper/filesystem.manifest"
 
   du -sx --block-size=1 "${CHROOT_DIR}" | cut -f1 \
-    > "${STAGING_DIR}/live/filesystem.size"
+    > "${STAGING_DIR}/casper/filesystem.size"
 
-  mksquashfs "${CHROOT_DIR}" "${STAGING_DIR}/live/filesystem.squashfs" \
+  mksquashfs "${CHROOT_DIR}" "${STAGING_DIR}/casper/filesystem.squashfs" \
     -comp xz -xattrs -wildcards -e boot
 
   cat > "${STAGING_DIR}/boot/grub/grub.cfg" <<'EOF'
@@ -221,13 +228,13 @@ set default=0
 set timeout=5
 
 menuentry "MiniOS Live" {
-  linux /live/vmlinuz boot=casper quiet splash ---
-  initrd /live/initrd
+  linux /casper/vmlinuz boot=casper quiet splash ---
+  initrd /casper/initrd
 }
 
 menuentry "MiniOS Live (Safe Graphics)" {
-  linux /live/vmlinuz boot=casper nomodeset quiet splash ---
-  initrd /live/initrd
+  linux /casper/vmlinuz boot=casper nomodeset quiet splash ---
+  initrd /casper/initrd
 }
 EOF
 }
