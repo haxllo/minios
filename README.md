@@ -68,6 +68,20 @@ Preflight validates:
 - Ubuntu mirror reachability
 - apt index refresh (can skip with `MINIOS_SKIP_APT_UPDATE=1`)
 
+Major v2 live boot reliability changes in modern builder:
+- forces `graphical.target` for live boot
+- adds LightDM auto-login into `minios` session (`ubuntu` live user)
+- validates kernel/initrd/session files before ISO creation
+- adds `MiniOS Live (Debug Console)` boot entry for quick diagnostics
+
+Faster iteration:
+- set `MINIOS_KEEP_CHROOT=1` to reuse existing chroot and skip full rootfs rebuild
+- command example:
+
+```bash
+sudo MINIOS_KEEP_CHROOT=1 bash scripts/build_iso_modern.sh
+```
+
 Legacy builder (fallback only):
 
 ```bash

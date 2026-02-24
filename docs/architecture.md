@@ -29,6 +29,7 @@ Provide a polished, low-maintenance Linux desktop profile with:
 - primary ISO build using `mmdebstrap + squashfs + grub-mkrescue`
 - legacy ISO build fallback using `live-build`
 - pinned defaults and hardware profile docs
+- v2 boot reliability gates (graphical target, display manager alias, runtime validation)
 
 ## Why this stack
 

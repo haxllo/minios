@@ -103,6 +103,7 @@ build_chroot() {
   local packages
   packages=(
     systemd-sysv
+    ubuntu-standard
     sudo
     casper
     initramfs-tools
@@ -194,6 +195,62 @@ inject_minios_config() {
     > "${CHROOT_DIR}/usr/share/xsessions/minios.desktop"
 }
 
+configure_live_runtime() {
+  local lightdm_conf_dir
+  lightdm_conf_dir="${CHROOT_DIR}/etc/lightdm/lightdm.conf.d"
+
+  mkdir -p "${lightdm_conf_dir}"
+  cat > "${lightdm_conf_dir}/50-minios-live.conf" <<'EOF'
+[Seat:*]
+autologin-user=ubuntu
+autologin-user-timeout=0
+user-session=minios
+greeter-session=lightdm-gtk-greeter
+allow-guest=false
+EOF
+
+  mkdir -p "${CHROOT_DIR}/etc/systemd/system"
+  ln -sfn /lib/systemd/system/graphical.target "${CHROOT_DIR}/etc/systemd/system/default.target"
+  ln -sfn /lib/systemd/system/lightdm.service "${CHROOT_DIR}/etc/systemd/system/display-manager.service"
+}
+
+validate_chroot_runtime() {
+  local missing=0
+
+  if [[ ! -x "${CHROOT_DIR}/usr/local/bin/minios-session" ]]; then
+    echo "Validation error: /usr/local/bin/minios-session missing or not executable in chroot."
+    missing=1
+  fi
+  if [[ ! -f "${CHROOT_DIR}/usr/share/xsessions/minios.desktop" ]]; then
+    echo "Validation error: /usr/share/xsessions/minios.desktop missing in chroot."
+    missing=1
+  fi
+  if [[ ! -f "${CHROOT_DIR}/etc/lightdm/lightdm.conf.d/50-minios-live.conf" ]]; then
+    echo "Validation error: LightDM live config missing in chroot."
+    missing=1
+  fi
+  if [[ ! -e "${CHROOT_DIR}/etc/systemd/system/default.target" ]]; then
+    echo "Validation error: default.target missing in chroot."
+    missing=1
+  fi
+  if [[ ! -e "${CHROOT_DIR}/etc/systemd/system/display-manager.service" ]]; then
+    echo "Validation error: display-manager.service alias missing in chroot."
+    missing=1
+  fi
+  if ! ls "${CHROOT_DIR}"/boot/vmlinuz-* >/dev/null 2>&1; then
+    echo "Validation error: no kernel image found under chroot /boot."
+    missing=1
+  fi
+  if ! ls "${CHROOT_DIR}"/boot/initrd.img-* >/dev/null 2>&1; then
+    echo "Validation error: no initrd found under chroot /boot."
+    missing=1
+  fi
+
+  if [[ "${missing}" -ne 0 ]]; then
+    return 1
+  fi
+}
+
 assemble_iso_tree() {
   local kernel_path
   local initrd_path
@@ -228,12 +285,17 @@ set default=0
 set timeout=5
 
 menuentry "MiniOS Live" {
-  linux /casper/vmlinuz boot=casper quiet splash ---
+  linux /casper/vmlinuz boot=casper systemd.unit=graphical.target quiet splash ---
   initrd /casper/initrd
 }
 
 menuentry "MiniOS Live (Safe Graphics)" {
-  linux /casper/vmlinuz boot=casper nomodeset quiet splash ---
+  linux /casper/vmlinuz boot=casper systemd.unit=graphical.target nomodeset quiet splash ---
+  initrd /casper/initrd
+}
+
+menuentry "MiniOS Live (Debug Console)" {
+  linux /casper/vmlinuz boot=casper systemd.unit=multi-user.target nosplash ---
   initrd /casper/initrd
 }
 EOF
@@ -241,10 +303,10 @@ EOF
 
 create_iso() {
   local iso_name
-  iso_name="minios-jammy-amd64-$(date '+%Y%m%d-%H%M').iso"
+  iso_name="minios-v2-jammy-amd64-$(date '+%Y%m%d-%H%M').iso"
   ISO_PATH="${OUTPUT_DIR}/${iso_name}"
 
-  grub-mkrescue -o "${ISO_PATH}" "${STAGING_DIR}" -- -volid "MINIOS_JAMMY"
+  grub-mkrescue -o "${ISO_PATH}" "${STAGING_DIR}" -- -volid "MINIOS_V2_JAMMY"
 
   if [[ ! -f "${ISO_PATH}" ]]; then
     echo "Build finished but ISO not found: ${ISO_PATH}"
@@ -304,6 +366,12 @@ fi
 
 echo "Injecting MiniOS session configuration..."
 inject_minios_config
+
+echo "Configuring live runtime defaults..."
+configure_live_runtime
+
+echo "Validating chroot runtime essentials..."
+validate_chroot_runtime
 
 echo "Assembling ISO staging tree..."
 assemble_iso_tree
