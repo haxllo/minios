@@ -152,7 +152,11 @@ build_chroot() {
     "deb http://security.ubuntu.com/ubuntu jammy-security main restricted universe multiverse"
 
   cp /etc/resolv.conf "${CHROOT_DIR}/etc/resolv.conf"
-  chroot "${CHROOT_DIR}" apt-get update
+  if chroot "${CHROOT_DIR}" /usr/bin/env bash -lc 'command -v apt-get >/dev/null 2>&1'; then
+    chroot "${CHROOT_DIR}" apt-get update
+  else
+    echo "apt-get not present in chroot variant; skipping chroot apt refresh."
+  fi
 }
 
 inject_minios_config() {
